@@ -1,22 +1,31 @@
 //Build a To-Do list app using React The app should allow users to add new tasks, mark them as complete, and delete them. Use React state to manage the list of tasks and their completion status. Use React props to pass data between components.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './style.css';
-import Tasks from './Tasks';
+import Tasks from './Tasks.jsx';
 
 export default function App() {
   const [taskInput, setTaskInput] = useState('');
   const [tasks, setTasks] = useState([]);
 
+  useEffect(() => {
+    const storedTasks = JSON.parse(localStorage.getItem('tasks'));
+    if (storedTasks) {
+      setTasks(storedTasks);
+    }
+  }, []);
+
   const handleAddTask = () => {
-    if (taskInput.trim() == '') {
+    if (taskInput.trim() === '') {
       alert('Please Add Task');
     } else {
       const newTask = {
         name: taskInput,
         completed: false,
       };
-      setTasks([...tasks, newTask]);
+      const updatedTasks = [...tasks, newTask];
+      setTasks(updatedTasks);
+      localStorage.setItem('tasks', JSON.stringify(updatedTasks));
     }
     setTaskInput('');
   };
@@ -25,12 +34,14 @@ export default function App() {
     const updatedData = [...tasks];
     updatedData[index].completed = true;
     setTasks(updatedData);
+    localStorage.setItem('tasks', JSON.stringify(updatedData));
   };
 
   const taskDeleted = (index) => {
     const updatedData = [...tasks];
     updatedData.splice(index, 1);
     setTasks(updatedData);
+    localStorage.setItem('tasks', JSON.stringify(updatedData));
   };
 
   return (
@@ -48,6 +59,7 @@ export default function App() {
       <div className="task-list">
         {tasks.map((task, index) => (
           <Tasks
+            key={index}
             index={index}
             task={task}
             taskCompleted={taskCompleted}
